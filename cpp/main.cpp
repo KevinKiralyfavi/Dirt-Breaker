@@ -1,11 +1,6 @@
-#include "convert888MatrixTo565Array.hpp"
 #include "driveCamLoop.hpp"
 #include "getDeviceID.hpp"
 #include "getVideoDevices.hpp"
-#include "opencv2/imgproc.hpp"
-#include "scale565MatrixTo565Array.hpp"
-#include "writeFrame.hpp"
-#include <iostream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
 #include <thread>
