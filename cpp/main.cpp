@@ -1,4 +1,5 @@
 #include "convert888MatrixTo565Array.hpp"
+#include "driveCamLoop.hpp"
 #include "getDeviceID.hpp"
 #include "getVideoDevices.hpp"
 #include "opencv2/imgproc.hpp"
@@ -7,6 +8,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
+#include <thread>
 
 const std::string videoDevices = getVideoDevices();
 
@@ -30,14 +32,5 @@ int main()
     // gunCamera.open(getDeviceID(videoDevices, "HD USB Camera"));
     // thermalCamera.open(getDeviceID(videoDevices, "fw:v1.3.0"));
 
-    while (true)
-    {
-        if (driveCamera.read(frame))
-        {
-            cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-            writeFrame(convert888MatrixTo565Array(frame), 0);
-        }
-        else
-            std::cout << "Error! Did not find drive frame!";
-    }
+    std::thread driveThread(driveCamLoop, driveCamera);
 }
