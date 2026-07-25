@@ -3,6 +3,7 @@
 // December 7th, 2025
 
 #include "camLoop.hpp"
+#include "capture.hpp"
 
 void capture(cv::VideoCapture &cap, cv::Mat &outputFrame, std::mutex &frameMutex);
 
@@ -38,30 +39,11 @@ void gunCamLoop(cv::VideoCapture &gunCamera)
 
     while (true)
     {
-
         {
             std::lock_guard<std::mutex> lock(frameMutex);
             cv::cvtColor(rawFrame, convertedFrame, cv::COLOR_BGR2BGR565);
             memcpy(buffer, convertedFrame.data, convertedFrame.total() * sizeof(uint16_t));
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
-    }
-}
-
-void capture(cv::VideoCapture &cap, cv::Mat &outputFrame, std::mutex &frameMutex)
-{
-    cv::Mat frame;
-
-    while (true)
-    {
-        if (!cap.grab())
-            continue;
-
-        cap.retrieve(frame);
-
-        {
-            std::lock_guard<std::mutex> lock(frameMutex);
-            std::swap(outputFrame, frame);
         }
     }
 }

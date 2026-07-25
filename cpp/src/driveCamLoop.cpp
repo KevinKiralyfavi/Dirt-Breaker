@@ -3,7 +3,6 @@
 // December 7th, 2025
 
 #include "camLoop.hpp"
-#include "convert888MatrixTo565Array.hpp"
 
 void driveCamLoop(cv::VideoCapture &driveCamera)
 {
