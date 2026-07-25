@@ -32,15 +32,19 @@ void gunCamLoop(cv::VideoCapture &gunCamera)
     // 0 is the offset. Don't offset so start at the beginning
     buffer = (uint8_t *)mmap(0, finfo.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fb, 0);
 
+    // Make a thread whose purpose is to grab frames and funnel them into a variable, using mutex to avoid random crashes
     std::thread captureThread(capture, std::ref(gunCamera), std::ref(rawFrame), std::ref(frameMutex));
 
+    //Sometimes it can take a little bit to get started, so spin until it reads in the first frame
     while (rawFrame.empty())
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     while (true)
     {
+        //Brackets here to ensure that the lock_guard object destroys itself and unlocks the frame
         {
             std::lock_guard<std::mutex> lock(frameMutex);
+            //Who knew that opencv already had a function for this?
             cv::cvtColor(rawFrame, convertedFrame, cv::COLOR_BGR2BGR565);
             memcpy(buffer, convertedFrame.data, convertedFrame.total() * sizeof(uint16_t));
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
