@@ -28,22 +28,21 @@ void driveCamLoop(cv::VideoCapture &driveCamera)
     // fb is the file descriptor from earlier
     // 0 is the offset. Don't offset, and start at the beginning
     buffer = (uint8_t *)mmap(0, finfo.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fb, 0);
+    driveCamera.read(frame);
 
+    /*
     while (true)
     {
         start = std::chrono::high_resolution_clock::now();
-        if (driveCamera.grab())
-        {
-            driveCamera.retrieve(frame);
-            cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-            convert888MatrixTo565Array(frame, convertedFrame);
-            writeFrame(convertedFrame, buffer);
-        }
-        else
-            std::cout << "Error! Did not find drive frame!" << std::endl;
+
+        cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+        convert888MatrixTo565Array(frame, convertedFrame);
+        writeFrame(convertedFrame, buffer);
+        driveCamera.read(frame);
 
         end = std::chrono::high_resolution_clock::now();
         duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
         std::cout << "Drive camera took " << duration.count() << " Milliseconds" << std::endl;
     }
+    */
 }

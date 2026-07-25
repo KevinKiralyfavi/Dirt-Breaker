@@ -14,10 +14,12 @@ int main()
 {
     cv::VideoCapture driveCamera;
     cv::VideoCapture gunCamera;
+    std::string drivePath = getDevicePath(videoDevices, "046d:0825");
+    std::system((std::string("v4l2-ctl -c exposure_dynamic_framerate=0 -d ") + drivePath).data());
     //  cv::VideoCapture thermalCamera;
 
-    driveCamera.open(getDevicePath(videoDevices, "046d:0825"), cv::CAP_V4L2);
-    driveCamera.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
+    driveCamera.open(drivePath, cv::CAP_V4L2);
+    driveCamera.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('Y', 'U', 'Y', 'V'));
     driveCamera.set(cv::CAP_PROP_FPS, 30);
     driveCamera.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
     driveCamera.set(cv::CAP_PROP_FRAME_WIDTH, 320);
@@ -34,8 +36,8 @@ int main()
     gunCamera.set(cv::CAP_PROP_FPS, 30);
     gunCamera.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
     gunCamera.set(cv::CAP_PROP_FRAME_WIDTH, 320);
-    gunCamera.set(cv::CAP_PROP_BRIGHTNESS, 32);
-    gunCamera.set(cv::CAP_PROP_CONTRAST, 64);
+    gunCamera.set(cv::CAP_PROP_BRIGHTNESS, 128);
+    gunCamera.set(cv::CAP_PROP_CONTRAST, 32);
     gunCamera.set(cv::CAP_PROP_SATURATION, 80);
     gunCamera.set(cv::CAP_PROP_GAIN, 0);
     gunCamera.set(cv::CAP_PROP_SHARPNESS, 6);
