@@ -19,7 +19,7 @@ int main()
     //  cv::VideoCapture thermalCamera;
 
     driveCamera.open(drivePath, cv::CAP_V4L2);
-    driveCamera.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('Y', 'U', 'Y', 'V'));
+    driveCamera.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
     driveCamera.set(cv::CAP_PROP_FPS, 30);
     driveCamera.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
     driveCamera.set(cv::CAP_PROP_FRAME_WIDTH, 320);
@@ -32,7 +32,7 @@ int main()
     driveCamera.set(cv::CAP_PROP_BUFFERSIZE, 1);
 
     gunCamera.open(getDevicePath(videoDevices, "HD USB Camera"), cv::CAP_V4L2);
-    gunCamera.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('Y', 'U', 'Y', 'V'));
+    gunCamera.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
     gunCamera.set(cv::CAP_PROP_FPS, 30);
     gunCamera.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
     gunCamera.set(cv::CAP_PROP_FRAME_WIDTH, 320);
@@ -45,8 +45,8 @@ int main()
     gunCamera.set(cv::CAP_PROP_BUFFERSIZE, 1);
     // thermalCamera.open(getDeviceID(videoDevices, "fw:v1.3.0"));
 
-    std::thread gunThread(visibleCamLoop, std::ref(gunCamera), 0);
-    std::thread driveThread(visibleCamLoop, std::ref(driveCamera), 1);
+    std::thread driveThread(visibleCamLoop, std::ref(driveCamera), 0);
+    std::thread gunThread(visibleCamLoop, std::ref(gunCamera), 1);
 
     // Keep the main thread alive
     while (true)

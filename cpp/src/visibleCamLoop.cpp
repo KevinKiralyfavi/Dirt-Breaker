@@ -4,18 +4,23 @@
 
 #include "visibleCamLoop.hpp"
 #include "capture.hpp"
+#include <mutex>
 
 void visibleCamLoop(cv::VideoCapture &gunCamera, int bufferID)
 {
     std::mutex frameMutex;
     cv::Mat rawFrame;
     cv::Mat convertedFrame;
+    cv::Mat localFrame;
     int fb;
     fb_fix_screeninfo finfo;
     uint8_t *buffer;
     std::chrono::time_point<std::chrono::high_resolution_clock> start;
     std::chrono::time_point<std::chrono::high_resolution_clock> end;
     std::chrono::milliseconds duration;
+    std::condition_variable frameReady;
+    std::unique_lock<std::mutex> lock;
+    bool newFrame = false;
 
     // Get the variable screen info and the fixed screen info
     fb = getBufferFileDescriptor(bufferID);
@@ -31,20 +36,25 @@ void visibleCamLoop(cv::VideoCapture &gunCamera, int bufferID)
     buffer = (uint8_t *)mmap(0, finfo.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fb, 0);
 
     // Make a thread whose purpose is to grab frames and funnel them into a variable, using mutex to avoid random crashes
-    std::thread captureThread(capture, std::ref(gunCamera), std::ref(rawFrame), std::ref(frameMutex));
+    std::thread captureThread(capture, std::ref(gunCamera), std::ref(rawFrame), std::ref(frameMutex), std::ref(frameReady), std::ref(newFrame));
 
     //Sometimes it can take a little bit to get started, so spin until it reads in the first frame
-    while (rawFrame.empty())
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     while (true)
     {
         //Brackets here to ensure that the lock_guard object destroys itself and unlocks the frame
         {
-            std::lock_guard<std::mutex> lock(frameMutex);
-            cv::cvtColor(rawFrame, convertedFrame, cv::COLOR_BGR2BGR565);
+            std::unique_lock<std::mutex> lock(frameMutex);
+
+            frameReady.wait(lock, [&] {
+                return newFrame;
+            });
+
+            rawFrame.copyTo(localFrame);
+            newFrame = false;
         }
-            memcpy(buffer, convertedFrame.data, convertedFrame.total() * sizeof(uint16_t));
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+        cv::cvtColor(localFrame, convertedFrame, cv::COLOR_BGR2BGR565);
+        memcpy(buffer, convertedFrame.data, convertedFrame.total() * sizeof(uint16_t));
     }
 }
