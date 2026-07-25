@@ -1,4 +1,5 @@
 #pragma once
+
 #include <array>
 #include <cstdint>
 #include <opencv2/videoio.hpp>

@@ -1,4 +1,4 @@
-#include "camLoop.hpp"
+#include "visibleCamLoop.hpp"
 #include "getDevicePath.hpp"
 #include "getVideoDevices.hpp"
 #include "scale565MatrixTo565Array.hpp"
@@ -45,8 +45,8 @@ int main()
     gunCamera.set(cv::CAP_PROP_BUFFERSIZE, 1);
     // thermalCamera.open(getDeviceID(videoDevices, "fw:v1.3.0"));
 
-    std::thread gunThread(gunCamLoop, std::ref(gunCamera));
-    // std::thread driveThread(driveCamLoop, std::ref(driveCamera));
+    std::thread gunThread(visibleCamLoop, std::ref(gunCamera), 0);
+    std::thread driveThread(visibleCamLoop, std::ref(driveCamera), 1);
 
     // Keep the main thread alive
     while (true)

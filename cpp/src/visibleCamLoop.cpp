@@ -1,11 +1,11 @@
 // Kevin Kiralyfalvi
-// Gun Camera Loop
-// December 7th, 2025
+// Visible Camera Loop
+// July 25th, 2026
 
-#include "camLoop.hpp"
+#include "visibleCamLoop.hpp"
 #include "capture.hpp"
 
-void gunCamLoop(cv::VideoCapture &gunCamera)
+void visibleCamLoop(cv::VideoCapture &gunCamera, int bufferID)
 {
     std::mutex frameMutex;
     cv::Mat rawFrame;
@@ -18,7 +18,7 @@ void gunCamLoop(cv::VideoCapture &gunCamera)
     std::chrono::milliseconds duration;
 
     // Get the variable screen info and the fixed screen info
-    fb = getBufferFileDescriptor(1);
+    fb = getBufferFileDescriptor(bufferID);
     ioctl(fb, FBIOGET_FSCREENINFO, &finfo);
 
     // Get the pointer to the buffer to more easily interact with it in my program
@@ -42,10 +42,9 @@ void gunCamLoop(cv::VideoCapture &gunCamera)
         //Brackets here to ensure that the lock_guard object destroys itself and unlocks the frame
         {
             std::lock_guard<std::mutex> lock(frameMutex);
-            //Who knew that opencv already had a function for this?
             cv::cvtColor(rawFrame, convertedFrame, cv::COLOR_BGR2BGR565);
-            memcpy(buffer, convertedFrame.data, convertedFrame.total() * sizeof(uint16_t));
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
+            memcpy(buffer, convertedFrame.data, convertedFrame.total() * sizeof(uint16_t));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
