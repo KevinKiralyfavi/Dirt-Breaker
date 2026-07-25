@@ -5,8 +5,6 @@
 #include "camLoop.hpp"
 #include "capture.hpp"
 
-void capture(cv::VideoCapture &cap, cv::Mat &outputFrame, std::mutex &frameMutex);
-
 void gunCamLoop(cv::VideoCapture &gunCamera)
 {
     std::mutex frameMutex;
