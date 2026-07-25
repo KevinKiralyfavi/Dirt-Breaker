@@ -15,9 +15,6 @@ void visibleCamLoop(cv::VideoCapture &gunCamera, int bufferID)
     int fb;
     fb_fix_screeninfo finfo;
     uint8_t *buffer;
-    std::chrono::time_point<std::chrono::high_resolution_clock> start;
-    std::chrono::time_point<std::chrono::high_resolution_clock> end;
-    std::chrono::milliseconds duration;
     std::condition_variable frameReady;
     std::unique_lock<std::mutex> lock;
     bool newFrame = false;
@@ -44,13 +41,18 @@ void visibleCamLoop(cv::VideoCapture &gunCamera, int bufferID)
     {
         //Brackets here to ensure that the lock_guard object destroys itself and unlocks the frame
         {
+            //hey buddy capture thread, please don't touch the frame
             std::unique_lock<std::mutex> lock(frameMutex);
 
+            //okay fine you can touch the frame, but tell me when you do
+            //when the value in the lambda evaluates to be true, i'll start moving again (AKA, when the capture thread tells me to)
             frameReady.wait(lock, [&] {
                 return newFrame;
             });
 
+            //I want to give access to the raw frame back to the capture thread as quickly as possible, so make a copy in order to achieve that.
             rawFrame.copyTo(localFrame);
+            // I just ate the new frame. Order up!
             newFrame = false;
         }
 
