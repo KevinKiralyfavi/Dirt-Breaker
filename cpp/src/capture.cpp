@@ -10,10 +10,11 @@ void capture(cv::VideoCapture &cap, cv::Mat &outputFrame, std::mutex &frameMutex
 
         {
             std::lock_guard<std::mutex> lock(frameMutex);
-            std::swap(outputFrame, frame);
+            frame.copyTo(outputFrame);
             newFrame = true;
         }
 
+        // Hey writing thread, check the status of the frame.
         frameReady.notify_one();
     }
 }
